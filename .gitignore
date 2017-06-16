@@ -197,3 +197,4 @@ FakesAssemblies/
 
 # Project.json lock file
 project.lock.json
+Glicko2.nuget.targets
