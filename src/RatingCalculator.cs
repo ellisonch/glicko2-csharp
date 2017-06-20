@@ -46,22 +46,7 @@ namespace Glicko2
         /// <param name="results"></param>
         public void UpdateRatings(RatingPeriodResults results)
         {
-            foreach (var player in results.GetParticipants())
-            {
-                if (results.GetResults(player).Count > 0)
-                {
-                    CalculateNewRating(player, results.GetResults(player));
-                }
-                else
-                {
-                    // if a player does not compete during the rating period, then only Step 6 applies.
-                    // the player's rating and volatility parameters remain the same but deviation increases
-                    player.SetWorkingRating(player.GetGlicko2Rating());
-                    player.SetWorkingRatingDeviation(CalculateNewRatingDeviation(player.GetGlicko2RatingDeviation(),
-                        player.GetVolatility()));
-                    player.SetWorkingVolatility(player.GetVolatility());
-                }
-            }
+			UpdateWorkingRatings(results);
 
             // now iterate through the participants and confirm their new ratings
             foreach (var player in results.GetParticipants())
@@ -73,12 +58,27 @@ namespace Glicko2
             results.Clear();
         }
 
-        /// <summary>
-        /// This is the function processing described in step 5 of Glickman's paper.
-        /// </summary>
-        /// <param name="player"></param>
-        /// <param name="results"></param>
-        private void CalculateNewRating(Rating player, IList<Result> results)
+		public void UpdateWorkingRatings(RatingPeriodResults results) {
+			foreach (var player in results.GetParticipants()) {
+				if (results.GetResults(player).Count > 0) {
+					CalculateNewRating(player, results.GetResults(player));
+				} else {
+					// if a player does not compete during the rating period, then only Step 6 applies.
+					// the player's rating and volatility parameters remain the same but deviation increases
+					player.SetWorkingRating(player.GetGlicko2Rating());
+					player.SetWorkingRatingDeviation(CalculateNewRatingDeviation(player.GetGlicko2RatingDeviation(),
+						player.GetVolatility()));
+					player.SetWorkingVolatility(player.GetVolatility());
+				}
+			}
+		}
+
+		/// <summary>
+		/// This is the function processing described in step 5 of Glickman's paper.
+		/// </summary>
+		/// <param name="player"></param>
+		/// <param name="results"></param>
+		private void CalculateNewRating(Rating player, IList<Result> results)
         {
             var phi = player.GetGlicko2RatingDeviation();
             var sigma = player.GetVolatility();
